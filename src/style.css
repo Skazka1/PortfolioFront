@@ -1,0 +1,44 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+body {
+  @apply min-h-screen bg-slate-50 text-slate-900 antialiased;
+  font-family: Inter, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+.dark body {
+  @apply bg-slate-950 text-slate-100;
+}
+
+.gradient-surface {
+  background:
+    radial-gradient(circle at 8% 12%, #e7f3ff 0%, transparent 34%),
+    radial-gradient(circle at 92% 14%, #f8eeff 0%, transparent 28%),
+    linear-gradient(140deg, #f7fbff 0%, #f3f7ff 46%, #faf6ff 100%);
+}
+
+.dark .gradient-surface {
+  background:
+    radial-gradient(circle at 12% 18%, #1a2948 0%, transparent 34%),
+    radial-gradient(circle at 90% 10%, #332044 0%, transparent 30%),
+    linear-gradient(135deg, #0d1220 0%, #13182a 56%, #10161f 100%);
+}
+
+/* Чуть менее "стерильный" вид: мягкие радиусы и тени */
+main .rounded-2xl {
+  border-radius: 1rem;
+}
+
+main .shadow,
+main .shadow-sm,
+main .shadow-lg {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+/* Поля в main без своих tailwind-классов */
+.dark main input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='submit']):not([type='button']):not([type='hidden']),
+.dark main select,
+.dark main textarea {
+  @apply border-slate-600 bg-slate-800 text-slate-100 placeholder:text-slate-500;
+}

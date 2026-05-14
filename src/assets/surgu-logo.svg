@@ -1,0 +1,12 @@
+<svg width="430" height="120" viewBox="0 0 430 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="!C@#">
+  <rect width="430" height="120" fill="none"/>
+  <g transform="translate(8,8)">
+    <circle cx="52" cy="52" r="40" fill="none" stroke="#2047B8" stroke-width="20" stroke-linecap="butt"/>
+    <path d="M52 12 A40 40 0 0 1 92 52 L72 52 A20 20 0 0 0 52 32 Z" fill="#149B3A"/>
+    <rect x="52" y="42" width="20" height="20" fill="white"/>
+  </g>
+  <text x="122" y="62" font-family="Inter, Arial, sans-serif" font-size="50" font-weight="700" fill="#1B1D23">!C@#</text>
+  <text x="124" y="88" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="500" fill="#2B2F38">
+    !C@3CBA:89 3>AC40@AB25==K9 C=825@A8B5B
+  </text>
+</svg>
