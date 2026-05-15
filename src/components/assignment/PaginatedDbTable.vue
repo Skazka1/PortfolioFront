@@ -1,7 +1,12 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { Paginated } from '@/types/api'
 
-export type DbTableRow = { id: number; label: string }
+export type DbTableRow = {
+  id: number
+  label: string
+  previewUrl?: string | null
+}
 
 const props = defineProps<{
   title: string
@@ -10,7 +15,10 @@ const props = defineProps<{
   meta: Paginated<unknown>['meta'] | null
   loading?: boolean
   perPage: number
+  showPreviewColumn?: boolean
 }>()
+
+const columnCount = computed(() => (props.showPreviewColumn ? 3 : 2))
 
 const emit = defineEmits<{
   'update:page': [page: number]
@@ -55,6 +63,12 @@ function onPerPageChange(e: Event) {
           <th class="assignment-table__th assignment-table__th--num">
             №
           </th>
+          <th
+            v-if="showPreviewColumn"
+            class="assignment-table__th assignment-table__th--preview"
+          >
+            Превью
+          </th>
           <th class="assignment-table__th">
             {{ nameColumnLabel }}
           </th>
@@ -69,13 +83,30 @@ function onPerPageChange(e: Event) {
           <td class="assignment-table__td assignment-table__td--num">
             {{ row.id }}
           </td>
+          <td
+            v-if="showPreviewColumn"
+            class="assignment-table__td assignment-table__td--preview"
+          >
+            <img
+              v-if="row.previewUrl"
+              :src="row.previewUrl"
+              :alt="`Превью: ${row.label}`"
+              class="assignment-table__preview-img"
+              loading="lazy"
+              decoding="async"
+            >
+            <span
+              v-else
+              class="assignment-table__preview-empty"
+            >—</span>
+          </td>
           <td class="assignment-table__td">
             {{ row.label }}
           </td>
         </tr>
         <tr v-if="!rows.length">
           <td
-            colspan="2"
+            :colspan="columnCount"
             class="assignment-table__empty"
           >
             Нет записей
@@ -207,6 +238,34 @@ function onPerPageChange(e: Event) {
 
 .assignment-table__th--num {
   width: 72px;
+}
+
+.assignment-table__th--preview {
+  width: 88px;
+}
+
+.assignment-table__td--preview {
+  vertical-align: middle;
+}
+
+.assignment-table__preview-img {
+  display: block;
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.dark .assignment-table__preview-img {
+  border-color: #475569;
+  background: #1e293b;
+}
+
+.assignment-table__preview-empty {
+  color: #9ca3af;
+  font-size: 0.875rem;
 }
 
 .dark .assignment-table__th {

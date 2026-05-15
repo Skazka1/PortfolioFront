@@ -11,7 +11,11 @@ const error = ref<string | null>(null)
 const payload = ref<Paginated<Project> | null>(null)
 
 const rows = computed<DbTableRow[]>(() =>
-  (payload.value?.data ?? []).map((p) => ({ id: p.id, label: p.title })),
+  (payload.value?.data ?? []).map((p) => ({
+    id: p.id,
+    label: p.title,
+    previewUrl: p.preview_image_url,
+  })),
 )
 
 const meta = computed(() => payload.value?.meta ?? null)
@@ -61,6 +65,7 @@ function onPerPage(next: number) {
     <PaginatedDbTable
       title="Проекты"
       name-column-label="Наименование проекта"
+      show-preview-column
       :rows="rows"
       :meta="meta"
       :loading="loading"

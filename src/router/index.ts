@@ -61,6 +61,18 @@ const router = createRouter({
       meta: { requiresAuth: true, roles: ['teacher' satisfies UserRole] },
     },
     {
+      path: '/admin/users',
+      name: 'admin-users',
+      component: () => import('@/views/AdminUsersView.vue'),
+      meta: { requiresAuth: true, roles: ['admin' satisfies UserRole], fullWidth: true },
+    },
+    {
+      path: '/admin/projects/new',
+      name: 'admin-add-project',
+      component: () => import('@/views/AdminAddProjectView.vue'),
+      meta: { requiresAuth: true, roles: ['admin' satisfies UserRole] },
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('@/views/NotFoundView.vue'),

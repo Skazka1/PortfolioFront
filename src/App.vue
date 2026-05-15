@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import Toast from 'primevue/toast'
 import AssignmentTablesPanel from '@/components/assignment/AssignmentTablesPanel.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import { SHOW_ASSIGNMENT_TABLES } from '@/config/assignment'
@@ -15,6 +16,7 @@ const mainClass = computed(() =>
 
 <template>
   <div class="gradient-surface min-h-screen">
+    <Toast position="bottom-right" />
     <AppHeader />
     <AssignmentTablesPanel v-if="SHOW_ASSIGNMENT_TABLES" />
     <main :class="mainClass">

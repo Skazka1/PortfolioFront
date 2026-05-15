@@ -26,6 +26,7 @@ const navItems = computed<MenuItem[]>(() => {
   items.push({ label: 'Другие портфолио', route: { name: 'students' } })
   items.push({ label: 'События', route: { name: 'events' } })
   if (auth.isAuthenticated && auth.hasRole('admin')) {
+    items.push({ label: 'Добавить проект', route: { name: 'admin-add-project' } })
     items.push({ label: 'Пользователи', route: { name: 'admin-users' } })
   }
   if (auth.isAuthenticated && auth.hasRole('teacher')) {
