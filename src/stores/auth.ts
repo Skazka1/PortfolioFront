@@ -1,23 +1,7 @@
-import axios from 'axios'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { getErrorMessage, getStoredAuthToken, setAuthToken } from '@/api/client'
+import { api, getErrorMessage, setAuthToken } from '@/api/client'
 import type { User, UserRole } from '@/types/api'
-
-/** База API: из .env или /api (прокси Vite → backend). */
-const backendUrl = import.meta.env.VITE_BACKEND_URL ?? '/api'
-
-function authRequestConfig() {
-  const headers: Record<string, string> = {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  }
-  const token = getStoredAuthToken()
-  if (token) {
-    headers.Authorization = `Bearer ${token}`
-  }
-  return { headers }
-}
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
@@ -35,7 +19,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function fetchUser(): Promise<void> {
     try {
-      const { data } = await axios.get<{ data: User }>(`${backendUrl}/user`, authRequestConfig())
+      const { data } = await api.get<{ data: User }>('/user')
       user.value = data.data
     } catch {
       user.value = null
@@ -47,11 +31,7 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
     try {
       const credentials = { email, password, remember }
-      const { data } = await axios.post<{ data: User; token: string }>(
-        `${backendUrl}/login`,
-        credentials,
-        authRequestConfig(),
-      )
+      const { data } = await api.post<{ data: User; token: string }>('/login', credentials)
       setAuthToken(data.token)
       user.value = data.data
     } catch (e) {
@@ -64,7 +44,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function logout(): Promise<void> {
     try {
-      await axios.post(`${backendUrl}/logout`, {}, authRequestConfig())
+      await api.post('/logout')
     } catch {
       // сеть/401 — всё равно сбрасываем локальное состояние
     } finally {

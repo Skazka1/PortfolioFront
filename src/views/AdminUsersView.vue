@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { api, getErrorMessage } from '@/api/client'
 import UserAvatar from '@/components/user/UserAvatar.vue'
+import { useAuthStore } from '@/stores/auth'
 import type { Paginated, User, UserRole } from '@/types/api'
 
 function roleLabel(r: UserRole): string {
@@ -24,6 +25,31 @@ const PER_PAGE_OPTIONS = [5, 10, 15, 20] as const
 
 const route = useRoute()
 const router = useRouter()
+const auth = useAuthStore()
+
+const PRIMARY_ADMIN_DELETE_MESSAGE = 'Нельзя удалить главного администратора.'
+
+function showUserFeedback(message: string, type: 'error' | 'ok' = 'error'): void {
+  if (type === 'error') {
+    err.value = message
+    ok.value = null
+    window.alert(message)
+  } else {
+    ok.value = message
+    err.value = null
+  }
+  void nextTick(() => {
+    document.getElementById('admin-users-feedback')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  })
+}
+
+function isPrimaryAdminUser(u: User): boolean {
+  if (u.is_primary_admin === true) {
+    return true
+  }
+  const primaryEmail = (import.meta.env.VITE_PRIMARY_ADMIN_EMAIL as string | undefined) ?? 'admin@example.com'
+  return u.email?.toLowerCase() === primaryEmail.toLowerCase()
+}
 
 const list = ref<Paginated<User> | null>(null)
 const busy = ref(false)
@@ -244,14 +270,22 @@ async function removeUser(u: User) {
   if (!confirm(`Удалить пользователя ${u.name}?`)) {
     return
   }
+  if (isPrimaryAdminUser(u)) {
+    showUserFeedback(PRIMARY_ADMIN_DELETE_MESSAGE)
+    return
+  }
+  if (auth.user?.id === u.id) {
+    showUserFeedback('Нельзя удалить свой аккаунт.')
+    return
+  }
   err.value = null
   ok.value = null
   try {
     await api.delete(`/api/admin/users/${u.id}`)
     await fetchList()
-    ok.value = 'Пользователь удалён'
+    showUserFeedback('Пользователь удалён', 'ok')
   } catch (e) {
-    err.value = getErrorMessage(e)
+    showUserFeedback(getErrorMessage(e))
   }
 }
 </script>
@@ -391,18 +425,24 @@ async function removeUser(u: User) {
         Создать
       </button>
     </form>
-    <p
-      v-if="err"
-      class="text-rose-600 dark:text-rose-400"
+    <div
+      id="admin-users-feedback"
+      class="mt-3 min-h-0"
     >
-      {{ err }}
-    </p>
-    <p
-      v-if="ok"
-      class="text-emerald-700 dark:text-emerald-400"
-    >
-      {{ ok }}
-    </p>
+      <p
+        v-if="err"
+        class="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800 dark:border-rose-900 dark:bg-rose-950/50 dark:text-rose-200"
+        role="alert"
+      >
+        {{ err }}
+      </p>
+      <p
+        v-if="ok"
+        class="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200"
+      >
+        {{ ok }}
+      </p>
+    </div>
 
     <div
       v-if="busy"
@@ -567,7 +607,6 @@ async function removeUser(u: User) {
               <button
                 type="button"
                 class="rounded bg-rose-600 px-3 py-1 text-white"
-                :disabled="u.role === 'admin'"
                 @click="removeUser(u)"
               >
                 Удалить

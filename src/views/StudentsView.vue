@@ -216,7 +216,7 @@ const hasActiveFilters = computed(() =>
       v-else-if="err"
       class="mt-8 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-200"
     >
-      Не удалось загрузить ленту: {{ err }}. Проверьте, что API запущен (например <code class="rounded bg-rose-100 px-1 dark:bg-rose-900/80">php artisan serve</code> на порту из <code class="rounded bg-rose-100 px-1 dark:bg-rose-900/80">vite.config.ts</code> proxy) и что в <code class="rounded bg-rose-100 px-1 dark:bg-rose-900/80">.env</code> фронта не указан неверный <code class="rounded bg-rose-100 px-1 dark:bg-rose-900/80">VITE_API_URL</code>.
+      Не удалось загрузить ленту: {{ err }}. Проверьте, что API запущен (например <code class="rounded bg-rose-100 px-1 dark:bg-rose-900/80">php artisan serve</code> на порту из <code class="rounded bg-rose-100 px-1 dark:bg-rose-900/80">vite.config.ts</code> proxy) и что в <code class="rounded bg-rose-100 px-1 dark:bg-rose-900/80">.env</code> указан верный <code class="rounded bg-rose-100 px-1 dark:bg-rose-900/80">VITE_BACKEND_URL</code>.
     </p>
 
     <div

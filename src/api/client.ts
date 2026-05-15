@@ -1,6 +1,19 @@
 import axios, { type AxiosError } from 'axios'
 
-const baseURL = import.meta.env.VITE_API_URL || ''
+/** База API: VITE_BACKEND_URL, затем VITE_API_URL, иначе /api (прокси Vite). */
+export const apiBaseUrl =
+  import.meta.env.VITE_BACKEND_URL ||
+  import.meta.env.VITE_API_URL ||
+  '/api'
+
+/** Убирает лишний /api в пути, если база уже заканчивается на /api. */
+function normalizeApiPath(url: string, baseURL: string): string {
+  const base = baseURL.replace(/\/$/, '')
+  if ((base === '/api' || base.endsWith('/api')) && url.startsWith('/api')) {
+    return url.slice(4) || '/'
+  }
+  return url
+}
 
 /** Ключ localStorage для Bearer-токена Sanctum. */
 export const AUTH_TOKEN_STORAGE_KEY = 'portfolio_api_token'
@@ -18,7 +31,7 @@ export function setAuthToken(token: string | null): void {
 }
 
 export const api = axios.create({
-  baseURL,
+  baseURL: apiBaseUrl,
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
@@ -26,6 +39,10 @@ export const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
+  const base = String(config.baseURL ?? api.defaults.baseURL ?? '')
+  if (config.url) {
+    config.url = normalizeApiPath(config.url, base)
+  }
   const token = getStoredAuthToken()
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
@@ -42,7 +59,7 @@ api.interceptors.response.use(
     const status = err.response?.status
     if (status === 401) {
       const url = String(err.config?.url ?? '')
-      if (!url.includes('/api/login')) {
+      if (!url.includes('/login')) {
         setAuthToken(null)
       }
     }
