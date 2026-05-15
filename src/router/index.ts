@@ -22,13 +22,13 @@ const router = createRouter({
       meta: { fullWidth: true },
     },
     { path: '/projects/:id', name: 'project', component: () => import('@/views/ProjectDetailView.vue') },
-    { path: '/events', name: 'events', component: () => import('@/views/EventsView.vue') },
     {
       path: '/events/:eventId/projects',
       name: 'event-projects',
       component: () => import('@/views/EventProjectsView.vue'),
       meta: { fullWidth: true },
     },
+    { path: '/events', name: 'events', component: () => import('@/views/EventsView.vue') },
     {
       path: '/account',
       name: 'account',
@@ -53,12 +53,7 @@ const router = createRouter({
       component: () => import('@/views/PortfolioProjectBuilderPageView.vue'),
       meta: { requiresAuth: true, roles: ['student' satisfies UserRole], fullWidth: true },
     },
-    {
-      path: '/admin/users',
-      name: 'admin-users',
-      component: () => import('@/views/AdminUsersView.vue'),
-      meta: { requiresAuth: true, roles: ['admin' satisfies UserRole] },
-    },
+
     {
       path: '/teacher/students',
       name: 'teacher-students',

@@ -1,5 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import PrimeVue from 'primevue/config'
+import Aura from '@primeuix/themes/aura'
 import App from './App.vue'
 import router from './router'
 import { useThemeStore } from './stores/theme'
@@ -9,5 +11,13 @@ const pinia = createPinia()
 const app = createApp(App)
 app.use(pinia)
 useThemeStore().syncFromStorage()
+app.use(PrimeVue, {
+  theme: {
+    preset: Aura,
+    options: {
+      darkModeSelector: '.dark',
+    },
+  },
+})
 app.use(router)
 app.mount('#app')
