@@ -23,6 +23,15 @@ onMounted(() => {
   }
 })
 
+watch(
+  () => auth.user,
+  (u) => {
+    if (u) {
+      fill(u)
+    }
+  },
+)
+
 watch(cropOpen, (v) => {
   if (!v) {
     cropFile.value = null

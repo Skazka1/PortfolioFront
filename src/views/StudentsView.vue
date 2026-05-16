@@ -216,15 +216,15 @@ const hasActiveFilters = computed(() =>
       v-else-if="err"
       class="mt-8 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-200"
     >
-      Не удалось загрузить ленту: {{ err }}. Проверьте, что API запущен (например <code class="rounded bg-rose-100 px-1 dark:bg-rose-900/80">php artisan serve</code> на порту из <code class="rounded bg-rose-100 px-1 dark:bg-rose-900/80">vite.config.ts</code> proxy) и что в <code class="rounded bg-rose-100 px-1 dark:bg-rose-900/80">.env</code> указан верный <code class="rounded bg-rose-100 px-1 dark:bg-rose-900/80">VITE_BACKEND_URL</code>.
+      Не удалось загрузить ленту: {{ err }}. Проверьте <code class="rounded bg-rose-100 px-1 dark:bg-rose-900/80">VITE_BACKEND_URL</code> в <code class="rounded bg-rose-100 px-1 dark:bg-rose-900/80">.env</code> фронта (при отдельном сервере API — полный URL, например <code class="rounded bg-rose-100 px-1 dark:bg-rose-900/80">http://хост:8000/api</code>) и что в <code class="rounded bg-rose-100 px-1 dark:bg-rose-900/80">CORS_ALLOWED_ORIGINS</code> на бэкенде указан origin фронта.
     </p>
 
     <div
-      v-else-if="projects.feed"
+      v-else-if="projects.feed && Array.isArray(projects.feed.data)"
       class="mt-8 space-y-10"
     >
       <p
-        v-if="projects.feed.data.length === 0"
+        v-if="(projects.feed.data?.length ?? 0) === 0"
         class="rounded-2xl border border-dashed border-slate-200 bg-white/80 py-12 text-center text-slate-600 dark:border-slate-600 dark:bg-slate-900/80 dark:text-slate-300"
       >
         <span class="block font-medium text-slate-700 dark:text-slate-200">Пока нет опубликованных проектов.</span>
@@ -291,16 +291,16 @@ const hasActiveFilters = computed(() =>
       </article>
 
       <div
-        v-if="projects.feed.meta.last_page > 1"
+        v-if="(projects.feed.meta?.last_page ?? 1) > 1"
         class="flex flex-wrap justify-center gap-2 pt-2"
       >
         <button
-          v-for="l in projects.feed.meta.last_page"
+          v-for="l in projects.feed.meta?.last_page ?? 1"
           :key="l"
           type="button"
           class="rounded px-3 py-1 text-sm"
           :class="
-            l === projects.feed.meta.current_page
+            l === (projects.feed.meta?.current_page ?? 1)
               ? 'bg-indigo-600 text-white dark:bg-indigo-500'
               : 'bg-slate-100 dark:bg-slate-800 dark:text-slate-200'
           "

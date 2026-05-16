@@ -1,6 +1,6 @@
-import axios, { type AxiosError } from 'axios'
+import axios, { AxiosError } from 'axios'
 
-/** База API: VITE_BACKEND_URL, затем VITE_API_URL, иначе /api (прокси Vite). */
+/** База API: VITE_BACKEND_URL → VITE_API_URL → `/api` (только если фронт и API с одним origin / прокси Vite). */
 export const apiBaseUrl =
   import.meta.env.VITE_BACKEND_URL ||
   import.meta.env.VITE_API_URL ||
@@ -54,7 +54,25 @@ api.interceptors.request.use((config) => {
 })
 
 api.interceptors.response.use(
-  (r) => r,
+  (r) => {
+    const body = r.data
+    const ct = String(r.headers['content-type'] || '')
+    if (
+      (typeof body === 'string' && /^\s*</.test(body))
+      || (ct.includes('text/html') && body !== null && typeof body !== 'object')
+    ) {
+      return Promise.reject(
+        new AxiosError(
+          'Сервер вернул HTML вместо JSON. Проверьте VITE_BACKEND_URL: при раздельных серверах укажите полный URL API бэкенда; при одном сервере с nginx — что /api проксируется в Laravel, а не отдаётся index.html.',
+          AxiosError.ERR_BAD_RESPONSE,
+          r.config,
+          r.request,
+          r,
+        ),
+      )
+    }
+    return r
+  },
   (err: AxiosError) => {
     const status = err.response?.status
     if (status === 401) {

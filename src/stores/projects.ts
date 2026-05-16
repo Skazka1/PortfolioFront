@@ -32,7 +32,22 @@ export const useProjectsStore = defineStore('projects', () => {
         ...(params?.genre ? { genre: params.genre } : {}),
       },
     })
-    feed.value = res.data
+    const raw = res.data as unknown as Record<string, unknown>
+    const list = Array.isArray(raw?.data) ? (raw.data as Project[]) : []
+    const meta =
+      raw?.meta && typeof raw.meta === 'object' ? (raw.meta as Paginated<Project>['meta']) : null
+    const links = Array.isArray(raw?.links) ? (raw.links as Paginated<Project>['links']) : []
+    const perPage = params?.per_page ?? 12
+    feed.value = {
+      data: list,
+      links,
+      meta: meta ?? {
+        current_page: 1,
+        last_page: 1,
+        per_page: perPage,
+        total: list.length,
+      },
+    }
   }
 
   function clearPublishedFeed(): void {

@@ -216,7 +216,7 @@ async function remove(e: CampusEvent) {
     </div>
 
     <div
-      v-if="ev.list"
+      v-if="ev.list && Array.isArray(ev.list.data)"
       class="mt-2 space-y-4"
     >
       <article
@@ -270,7 +270,7 @@ async function remove(e: CampusEvent) {
         </div>
       </article>
       <p
-        v-if="ev.list.data.length === 0"
+        v-if="(ev.list.data?.length ?? 0) === 0"
         class="py-8 text-center text-slate-500 dark:text-slate-400"
       >
         {{ listScope === 'upcoming' ? 'Предстоящих событий пока нет.' : 'Прошедших событий пока нет.' }}
