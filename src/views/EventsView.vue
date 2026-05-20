@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useEventsStore } from '@/stores/events'
 import type { CampusEvent } from '@/types/api'
 import { EVENT_GENRES } from '@/constants/eventGenres'
+import { datetimeLocalToPayload, isoToDatetimeLocal } from '@/utils/eventDateTime'
 
 const ev = useEventsStore()
 const auth = useAuthStore()
@@ -43,10 +44,9 @@ const canCrud = () => auth.hasRole('teacher') || auth.hasRole('admin')
 
 function startEdit(e: CampusEvent) {
   editId.value = e.id
-  const d = new Date(e.date_time)
   form.value = {
     title: e.title,
-    date_time: d.toISOString().slice(0, 16),
+    date_time: isoToDatetimeLocal(e.date_time),
     location: e.location || '',
     description: e.description || '',
     genres: [...(e.genres ?? [])],
@@ -75,7 +75,7 @@ async function save() {
     if (editId.value) {
       await api.patch(`/api/events/${editId.value}`, {
         title: form.value.title,
-        date_time: new Date(form.value.date_time).toISOString(),
+        date_time: datetimeLocalToPayload(form.value.date_time),
         location: form.value.location || null,
         description: form.value.description || null,
         genres: form.value.genres.length ? form.value.genres : [],
@@ -83,7 +83,7 @@ async function save() {
     } else {
       await api.post('/api/events', {
         title: form.value.title,
-        date_time: new Date(form.value.date_time).toISOString(),
+        date_time: datetimeLocalToPayload(form.value.date_time),
         location: form.value.location || null,
         description: form.value.description.trim(),
         genres: form.value.genres,
