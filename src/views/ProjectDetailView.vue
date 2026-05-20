@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import DOMPurify from 'dompurify'
 import { computed, onMounted, ref, watch } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
-import { getErrorMessage } from '@/api/client'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
+import Button from 'primevue/button'
+import { api, getErrorMessage } from '@/api/client'
+import { useAuthStore } from '@/stores/auth'
 import { useProjectsStore } from '@/stores/projects'
 import LikeButton from '@/components/project/LikeButton.vue'
 import UserAvatar from '@/components/user/UserAvatar.vue'
@@ -10,9 +12,16 @@ import { displayProjectCreator } from '@/utils/projectCreator'
 import { formatPastEventShort } from '@/utils/formatProjectFeedDate'
 
 const route = useRoute()
+const router = useRouter()
+const auth = useAuthStore()
 const projects = useProjectsStore()
 const loading = ref(true)
 const err = ref<string | null>(null)
+const deleting = ref(false)
+
+const canDeleteAsAdmin = computed(
+  () => auth.hasRole('admin') && projects.current !== null
+)
 
 onMounted(() => {
   void run()
@@ -59,6 +68,31 @@ const pastEventLine = computed(() => {
   const pe = projects.current?.past_event
   return pe ? formatPastEventShort(pe) : null
 })
+
+async function removeProject() {
+  const p = projects.current
+  if (!p || !canDeleteAsAdmin.value) {
+    return
+  }
+  if (!confirm(`Удалить проект «${p.title}»? Это действие нельзя отменить.`)) {
+    return
+  }
+  deleting.value = true
+  err.value = null
+  try {
+    await api.delete(`/api/projects/${p.id}`)
+    const student = p.students?.[0]
+    if (student) {
+      await router.push({ name: 'student', params: { id: student.id } })
+    } else {
+      await router.push({ name: 'students' })
+    }
+  } catch (e) {
+    err.value = getErrorMessage(e)
+  } finally {
+    deleting.value = false
+  }
+}
 </script>
 
 <template>
@@ -127,8 +161,19 @@ const pastEventLine = computed(() => {
       <span class="font-medium text-slate-500 dark:text-slate-500">Прошедшее событие:</span>
       {{ pastEventLine }}
     </p>
-    <div class="mt-2 flex items-center gap-3">
+    <div class="mt-2 flex flex-wrap items-center gap-3">
       <LikeButton :project="projects.current" />
+      <Button
+        v-if="canDeleteAsAdmin"
+        type="button"
+        label="Удалить проект"
+        severity="danger"
+        outlined
+        size="small"
+        :loading="deleting"
+        :disabled="deleting"
+        @click="removeProject"
+      />
     </div>
     <div
       v-if="hasDescriptionContent"

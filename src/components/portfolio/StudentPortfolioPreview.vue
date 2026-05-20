@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import Button from 'primevue/button'
+import { api, getErrorMessage } from '@/api/client'
 import UserAvatar from '@/components/user/UserAvatar.vue'
 import { stripHtmlToPlain } from '@/utils/stripHtml'
 import type { Project } from '@/types/api'
@@ -18,6 +20,8 @@ const props = withDefaults(
     showProjectGrid?: boolean
     /** true: подсказка про боковую панель; false: текст для чужого портфолио */
     editorLayout?: boolean
+    /** Администратор может удалять чужие проекты */
+    canDeleteProjects?: boolean
   }>(),
   {
     coauthorsLine: null,
@@ -25,8 +29,16 @@ const props = withDefaults(
     projects: () => [],
     showProjectGrid: true,
     editorLayout: false,
+    canDeleteProjects: false,
   }
 )
+
+const emit = defineEmits<{
+  'project-removed': []
+}>()
+
+const deleteErr = ref<string | null>(null)
+const deletingId = ref<number | null>(null)
 
 const subtitle = computed(() => {
   const parts = [
@@ -35,6 +47,25 @@ const subtitle = computed(() => {
   ].filter(Boolean)
   return parts.join(' · ')
 })
+
+async function removeProject(p: Project) {
+  if (!props.canDeleteProjects) {
+    return
+  }
+  if (!confirm(`Удалить проект «${p.title}»?`)) {
+    return
+  }
+  deleteErr.value = null
+  deletingId.value = p.id
+  try {
+    await api.delete(`/api/projects/${p.id}`)
+    emit('project-removed')
+  } catch (e) {
+    deleteErr.value = getErrorMessage(e)
+  } finally {
+    deletingId.value = null
+  }
+}
 </script>
 
 <template>
@@ -76,18 +107,40 @@ const subtitle = computed(() => {
 
       <template v-if="showProjectGrid && projects.length">
         <h2 class="mt-10 border-b border-slate-200 pb-2 text-lg font-semibold text-slate-800 dark:border-slate-700 dark:text-slate-100">Проекты</h2>
+        <p
+          v-if="deleteErr"
+          class="mt-2 text-sm text-rose-600 dark:text-rose-400"
+        >
+          {{ deleteErr }}
+        </p>
         <ul class="mt-4 grid gap-4 sm:grid-cols-2">
           <li
             v-for="p in projects"
             :key="p.id"
+            class="rounded-xl border border-slate-100 bg-slate-50/80 dark:border-slate-700 dark:bg-slate-800/80"
           >
             <RouterLink
               :to="{ name: 'project', params: { id: p.id } }"
-              class="block rounded-xl border border-slate-100 bg-slate-50/80 p-4 transition hover:border-indigo-200 hover:bg-white dark:border-slate-700 dark:bg-slate-800/80 dark:hover:border-indigo-500 dark:hover:bg-slate-800"
+              class="block p-4 transition hover:border-indigo-200 hover:bg-white dark:hover:border-indigo-500 dark:hover:bg-slate-800"
             >
               <span class="font-medium text-indigo-900 dark:text-indigo-300">{{ p.title }}</span>
               <p class="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">{{ stripHtmlToPlain(p.description) }}</p>
             </RouterLink>
+            <div
+              v-if="canDeleteProjects"
+              class="border-t border-slate-100 px-4 py-2 dark:border-slate-700"
+            >
+              <Button
+                type="button"
+                label="Удалить"
+                severity="danger"
+                text
+                size="small"
+                :loading="deletingId === p.id"
+                :disabled="deletingId !== null"
+                @click="removeProject(p)"
+              />
+            </div>
           </li>
         </ul>
       </template>

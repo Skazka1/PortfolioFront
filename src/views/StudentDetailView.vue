@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { useUsersStore } from '@/stores/users'
 import StudentPortfolioPreview from '@/components/portfolio/StudentPortfolioPreview.vue'
 
 const route = useRoute()
+const auth = useAuthStore()
 const store = useUsersStore()
 
 onMounted(() => {
@@ -33,6 +35,8 @@ async function run() {
       :avatar-url="store.studentDetail.data.avatar_url"
       :bio="store.studentDetail.data.bio ?? null"
       :projects="store.studentDetail.projects"
+      :can-delete-projects="auth.hasRole('admin')"
+      @project-removed="run"
     />
   </div>
 </template>
