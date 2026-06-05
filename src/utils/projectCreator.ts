@@ -17,6 +17,18 @@ function fromPayload(c: ProjectCreatedBy): DisplayProjectCreator {
   }
 }
 
+/** Ключ владельца портфолио в ленте: автор карточки или первый участник. */
+export function portfolioOwnerKey(p: Project): string {
+  if (p.created_by) {
+    return `user:${p.created_by.id}`
+  }
+  const s = p.students?.[0]
+  if (s) {
+    return `user:${s.id}`
+  }
+  return `project:${p.id}`
+}
+
 /** Автор карточки: явное поле API или первый участник для старых записей. */
 export function displayProjectCreator(p: Project): DisplayProjectCreator | null {
   if (p.created_by) {

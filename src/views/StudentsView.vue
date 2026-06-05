@@ -7,7 +7,7 @@ import ProjectCard from '@/components/project/ProjectCard.vue'
 import UserAvatar from '@/components/user/UserAvatar.vue'
 import type { Project } from '@/types/api'
 import { formatPastEventShort, formatProjectFeedCreatedAt } from '@/utils/formatProjectFeedDate'
-import { displayProjectCreator } from '@/utils/projectCreator'
+import { displayProjectCreator, portfolioOwnerKey } from '@/utils/projectCreator'
 
 const projects = useProjectsStore()
 const route = useRoute()
@@ -39,6 +39,46 @@ const feedRows = computed(() => {
       ? formatPastEventShort(project.past_event)
       : null,
   }))
+})
+
+/** Подряд идущие проекты одного автора — один блок портфолио в ленте. */
+const feedGroups = computed(() => {
+  const rows = feedRows.value
+  if (!rows.length) {
+    return []
+  }
+
+  type Group = {
+    key: string
+    creator: (typeof rows)[number]['creator']
+    course: string | null
+    group: string | null
+    rows: typeof rows
+  }
+
+  const groups: Group[] = []
+  let current: Group | null = null
+  let lastKey: string | null = null
+
+  for (const row of rows) {
+    const key = portfolioOwnerKey(row.project)
+    if (key !== lastKey) {
+      const createdBy = row.project.created_by
+      current = {
+        key,
+        creator: row.creator,
+        course: createdBy?.course ?? row.project.students?.[0]?.course ?? null,
+        group: createdBy?.group ?? row.project.students?.[0]?.group ?? null,
+        rows: [row],
+      }
+      groups.push(current)
+      lastKey = key
+    } else {
+      current?.rows.push(row)
+    }
+  }
+
+  return groups
 })
 
 async function load() {
@@ -135,7 +175,7 @@ const hasActiveFilters = computed(() =>
 </script>
 
 <template>
-  <div class="mx-auto max-w-3xl">
+  <div class="mx-auto max-w-4xl">
     <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Лента проектов</h1>
     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
       Здесь только опубликованные проекты (в конструкторе включите «Публиковать в каталоге»). Поиск по названию — в шапке сайта.
@@ -231,64 +271,114 @@ const hasActiveFilters = computed(() =>
         <span class="mt-2 block text-sm">Черновики и выключенная публикация сюда не попадают — откройте проект в конструкторе и включите «Публиковать в каталоге».</span>
       </p>
 
-      <article
-        v-for="{ project: p, creator: c, createdLabel, pastEventLabel } in feedRows"
-        :key="p.id"
-        class="border-b border-slate-200 pb-10 last:border-0 dark:border-slate-700"
+      <section
+        v-for="block in feedGroups"
+        :key="block.key"
+        class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:shadow-black/20"
       >
-        <div
-          v-if="c"
-          class="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-600 dark:text-slate-400"
+        <header
+          v-if="block.creator"
+          class="flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-slate-200 bg-slate-50/90 px-5 py-4 dark:border-slate-700 dark:bg-slate-800/80"
         >
-          <span class="shrink-0 font-medium text-slate-500 dark:text-slate-500">Создал(а):</span>
           <UserAvatar
-            :name="c.name"
-            :image-url="c.avatar_url"
-            size="sm"
+            :name="block.creator.name"
+            :image-url="block.creator.avatar_url"
+            size="md"
           />
-          <RouterLink
-            v-if="c.role === 'student'"
-            :to="{ name: 'student', params: { id: c.id } }"
-            class="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
-          >{{ c.name }}</RouterLink>
-          <span
-            v-else
-            class="font-medium text-slate-800 dark:text-slate-200"
-          >{{ c.name }}</span>
-        </div>
-        <p
-          v-if="createdLabel"
-          class="mb-3 text-xs text-slate-500 dark:text-slate-500"
-        >
-          Создано: {{ createdLabel }}
-        </p>
-        <p
-          v-if="pastEventLabel"
-          class="mb-3 text-xs text-slate-600 dark:text-slate-400"
-        >
-          <span class="font-medium text-slate-500 dark:text-slate-500">По событию:</span>
-          {{ pastEventLabel }}
-        </p>
-        <div
-          v-if="p.students?.length"
-          class="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-600 dark:text-slate-400"
-        >
-          <span class="font-medium text-slate-500 dark:text-slate-500">Участники:</span>
-          <template
-            v-for="(s, i) in p.students"
-            :key="s.id"
-          >
+          <div class="min-w-0 flex-1">
+            <p class="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
+              Портфолио
+            </p>
             <RouterLink
-              :to="{ name: 'student', params: { id: s.id } }"
+              v-if="block.creator.role === 'student'"
+              :to="{ name: 'student', params: { id: block.creator.id } }"
+              class="text-lg font-semibold text-indigo-700 hover:underline dark:text-indigo-300"
+            >{{ block.creator.name }}</RouterLink>
+            <p
+              v-else
+              class="text-lg font-semibold text-slate-900 dark:text-slate-100"
+            >
+              {{ block.creator.name }}
+            </p>
+            <p
+              v-if="block.course || block.group"
+              class="mt-0.5 text-sm text-slate-500 dark:text-slate-400"
+            >
+              <span v-if="block.course">курс {{ block.course }}</span><span
+                v-if="block.course && block.group"
+                class="mx-1 text-slate-300 dark:text-slate-600"
+              >·</span><span v-if="block.group">группа {{ block.group }}</span>
+            </p>
+          </div>
+          <RouterLink
+            v-if="block.creator.role === 'student'"
+            :to="{ name: 'student', params: { id: block.creator.id } }"
+            class="shrink-0 text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+          >
+            Открыть портфолио →
+          </RouterLink>
+        </header>
+
+        <article
+          v-for="({ project: p, creator: c, createdLabel, pastEventLabel }, rowIndex) in block.rows"
+          :key="p.id"
+          class="px-5 py-6"
+          :class="rowIndex > 0 ? 'border-t border-dashed border-slate-200 dark:border-slate-700' : ''"
+        >
+          <div
+            v-if="c && block.rows.length > 1 && c.id !== block.creator?.id"
+            class="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-600 dark:text-slate-400"
+          >
+            <span class="shrink-0 font-medium text-slate-500 dark:text-slate-500">Создал(а):</span>
+            <UserAvatar
+              :name="c.name"
+              :image-url="c.avatar_url"
+              size="sm"
+            />
+            <RouterLink
+              v-if="c.role === 'student'"
+              :to="{ name: 'student', params: { id: c.id } }"
               class="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
-            >{{ s.name }}</RouterLink><span
-              v-if="i < (p.students?.length ?? 0) - 1"
-              class="text-slate-400"
-            >,</span>
-          </template>
-        </div>
-        <ProjectCard :project="p" />
-      </article>
+            >{{ c.name }}</RouterLink>
+            <span
+              v-else
+              class="font-medium text-slate-800 dark:text-slate-200"
+            >{{ c.name }}</span>
+          </div>
+          <p
+            v-if="createdLabel"
+            class="mb-3 text-xs text-slate-500 dark:text-slate-500"
+          >
+            Создано: {{ createdLabel }}
+          </p>
+          <p
+            v-if="pastEventLabel"
+            class="mb-3 text-xs text-slate-600 dark:text-slate-400"
+          >
+            <span class="font-medium text-slate-500 dark:text-slate-500">По событию:</span>
+            {{ pastEventLabel }}
+          </p>
+          <div
+            v-if="p.students?.length"
+            class="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-600 dark:text-slate-400"
+          >
+            <span class="font-medium text-slate-500 dark:text-slate-500">Участники:</span>
+            <template
+              v-for="(s, i) in p.students"
+              :key="s.id"
+            >
+              <RouterLink
+                :to="{ name: 'student', params: { id: s.id } }"
+                class="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+              >{{ s.name }}</RouterLink><span
+                v-if="i < (p.students?.length ?? 0) - 1"
+                class="text-slate-400"
+              >,</span>
+            </template>
+          </div>
+          <ProjectCard :project="p" />
+        </article>
+      </section>
 
       <div
         v-if="(projects.feed.meta?.last_page ?? 1) > 1"
