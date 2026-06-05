@@ -70,25 +70,31 @@ async function removeProject(p: Project) {
 
 <template>
   <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:shadow-black/30">
-    <UserAvatar
-      :name="name"
-      :image-url="avatarUrl"
-      size="banner"
-    />
     <div class="p-6 md:p-8">
-      <h1 class="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl dark:text-slate-100">{{ name }}</h1>
-      <p
-        v-if="subtitle"
-        class="mt-1 text-sm text-slate-500 dark:text-slate-400"
-        >{{ subtitle }}</p>
-      <p
-        v-if="coauthorsLine"
-        class="mt-2 text-sm text-slate-600 dark:text-slate-300"
-        >{{ coauthorsLine }}</p>
-      <p
-        v-if="eventTitle"
-        class="mt-1 text-sm font-medium text-indigo-800 dark:text-indigo-300"
-        >Событие: {{ eventTitle }}</p>
+      <div class="flex flex-col gap-5 sm:flex-row sm:items-start">
+        <UserAvatar
+          :name="name"
+          :image-url="avatarUrl"
+          size="xl"
+          class="mx-auto sm:mx-0"
+        />
+        <div class="min-w-0 flex-1 text-center sm:text-left">
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl dark:text-slate-100">{{ name }}</h1>
+          <p
+            v-if="subtitle"
+            class="mt-1 text-sm text-slate-500 dark:text-slate-400"
+          >{{ subtitle }}</p>
+          <p
+            v-if="coauthorsLine"
+            class="mt-2 text-sm text-slate-600 dark:text-slate-300"
+          >{{ coauthorsLine }}</p>
+          <p
+            v-if="eventTitle"
+            class="mt-1 text-sm font-medium text-indigo-800 dark:text-indigo-300"
+          >Событие: {{ eventTitle }}</p>
+        </div>
+      </div>
+
       <h2 class="mt-8 border-b border-slate-200 pb-2 text-lg font-semibold text-slate-800 dark:border-slate-700 dark:text-slate-100">Описание</h2>
       <div
         v-if="bio"
