@@ -494,12 +494,12 @@ async function save() {
                 class="relative w-full text-left transition hover:bg-neutral-50 dark:hover:bg-slate-700/50"
                 @click="coverInput?.click()"
               >
-                <div class="flex max-h-52 w-full items-center justify-center bg-neutral-100 dark:bg-slate-950">
+                <div class="h-52 w-full overflow-hidden bg-neutral-100 dark:bg-slate-900">
                   <img
                     v-if="sidebarCoverUrl"
                     :src="sidebarCoverUrl"
                     alt=""
-                    class="max-h-52 w-full object-contain dark:bg-slate-950"
+                    class="h-full w-full object-cover object-center"
                   >
                   <div
                     v-else

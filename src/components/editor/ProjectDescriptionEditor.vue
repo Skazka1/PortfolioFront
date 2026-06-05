@@ -62,7 +62,7 @@ const editor = useEditor({
   editorProps: {
     attributes: {
       class: props.embedded
-        ? 'min-h-[16rem] px-1 py-2 text-base leading-relaxed text-neutral-900 focus:outline-none dark:bg-slate-950 dark:text-slate-100 [&_img]:max-w-full [&_img]:rounded-lg [&_img]:my-2 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:text-base [&_h3]:font-semibold'
+        ? 'min-h-[12rem] px-1 py-2 text-base leading-relaxed text-neutral-900 focus:outline-none bg-transparent dark:bg-transparent dark:text-slate-100 [&_img]:max-w-full [&_img]:rounded-lg [&_img]:my-2 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:text-base [&_h3]:font-semibold'
         : 'min-h-[12rem] px-3 py-2 text-sm leading-relaxed text-neutral-900 focus:outline-none dark:bg-slate-950 dark:text-slate-100 [&_img]:max-w-full [&_img]:rounded-lg [&_img]:my-2 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:text-base [&_h3]:font-semibold',
     },
   },
@@ -139,7 +139,7 @@ async function onFile(e: Event) {
   <div
     :class="
       toolbarOnRight
-        ? 'flex min-h-[16rem] flex-row items-stretch gap-2'
+        ? 'flex flex-row items-start gap-2'
         : [
             embedded
               ? 'rounded-lg border border-neutral-200 bg-white/80 dark:border-slate-600 dark:bg-slate-800/90'
@@ -241,9 +241,9 @@ async function onFile(e: Event) {
       :class="
         toolbarOnRight
           ? [
-              'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden',
+              'min-w-0 flex-1',
               embedded
-                ? 'rounded-lg border border-neutral-200 bg-white/80 dark:border-slate-600 dark:bg-slate-800/90'
+                ? ''
                 : 'rounded-2xl border-2 border-neutral-900 bg-white dark:border-slate-500 dark:bg-slate-900',
             ]
           : ''
@@ -388,3 +388,13 @@ async function onFile(e: Event) {
     </div>
   </div>
 </template>
+
+<style scoped>
+:deep(.ProseMirror) {
+  outline: none;
+}
+
+:deep(.tiptap) {
+  background: transparent;
+}
+</style>
