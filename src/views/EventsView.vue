@@ -63,7 +63,7 @@ async function save() {
     return
   }
   if (!editId.value && form.value.genres.length === 0) {
-    err.value = 'Выберите хотя бы один жанр мероприятия.'
+    err.value = 'Выберите хотя бы один формат мероприятия.'
     return
   }
   if (!editId.value && !form.value.description.trim()) {
@@ -180,7 +180,7 @@ async function remove(e: CampusEvent) {
           placeholder="Описание мероприятия"
           :required="!editId"
         />
-        <label class="text-sm text-slate-600 dark:text-slate-400">Жанры мероприятия (можно несколько)</label>
+        <label class="text-sm text-slate-600 dark:text-slate-400">Формат мероприятия (можно несколько)</label>
         <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <label
             v-for="g in EVENT_GENRES"

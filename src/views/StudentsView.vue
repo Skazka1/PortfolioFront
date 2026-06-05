@@ -179,7 +179,7 @@ const hasActiveFilters = computed(() =>
         </select>
       </label>
       <label class="flex min-w-[180px] flex-col gap-1 text-sm">
-        <span class="font-medium text-slate-600 dark:text-slate-400">Жанр проекта</span>
+        <span class="font-medium text-slate-600 dark:text-slate-400">Формат мероприятия</span>
         <select
           class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-900 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
           :value="queryParam('genre') ?? ''"

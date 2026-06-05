@@ -707,12 +707,12 @@ async function save() {
 
             <details class="rounded-2xl border border-neutral-300 bg-white/60 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800/80">
               <summary class="cursor-pointer select-none font-medium text-neutral-700 dark:text-slate-200">
-                Ещё: жанр мероприятия, GitHub, публикация
+                Ещё: формат мероприятия, GitHub, публикация
               </summary>
               <div class="mt-3 space-y-3 border-t border-neutral-200 pt-3 dark:border-slate-600">
                 <div>
                   <p class="text-xs text-neutral-500 dark:text-slate-400">
-                    Жанр мероприятия (можно выбрать несколько)
+                    Формат мероприятия (можно выбрать несколько)
                   </p>
                   <div class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
                     <label
@@ -809,7 +809,7 @@ async function save() {
                   v-else
                   class="mt-2 text-xs text-neutral-400 dark:text-slate-500"
                 >
-                  Жанры мероприятия — в панели слева, блок «Ещё».
+                  Формат мероприятия — в панели слева, блок «Ещё».
                 </p>
 
                 <h3 class="mt-6 border-b border-neutral-200 pb-2 text-lg font-semibold text-neutral-900 dark:border-slate-600 dark:text-slate-100">
@@ -835,7 +835,7 @@ async function save() {
                     v-if="selectedCampusEvent.genres?.length"
                     class="mt-1 block text-xs font-normal text-indigo-700/90 dark:text-indigo-400/90"
                   >
-                    Жанры мероприятия: {{ selectedCampusEvent.genres.join(', ') }}
+                    Формат мероприятия: {{ selectedCampusEvent.genres.join(', ') }}
                   </span>
                 </p>
 

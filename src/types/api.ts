@@ -45,7 +45,7 @@ export interface Project {
   github_url: string | null
   preview_image_url: string | null
   gallery_urls?: string[]
-  /** Жанры мероприятия (научное, спортивное, …); в API ключ `technologies`. */
+  /** Формат мероприятия (научное, спортивное, …); в API ключ `technologies`. */
   technologies: string[]
   is_published: boolean
   likes_count: number
@@ -71,7 +71,7 @@ export interface ProjectPreview {
   id: number
   title: string
   preview_image_url: string | null
-  /** Жанры мероприятия; ключ API `technologies`. */
+  /** Формат мероприятия; ключ API `technologies`. */
   technologies: string[]
 }
 
@@ -81,7 +81,7 @@ export interface CampusEvent {
   description: string | null
   date_time: string
   location: string | null
-  /** Жанры мероприятия (из общего списка). */
+  /** Формат мероприятия (из общего списка). */
   genres: string[]
   created_by?: User
 }

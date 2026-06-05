@@ -208,7 +208,7 @@ async function removeProject() {
       class="mt-4"
     >
       <p class="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-        Жанры мероприятия
+        Формат мероприятия
       </p>
       <div class="flex flex-wrap gap-1">
         <span

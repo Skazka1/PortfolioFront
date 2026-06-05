@@ -104,7 +104,7 @@ async function onPublishToggle(e: Event) {
           v-if="project.technologies?.length"
           class="mt-3 text-[11px] font-medium text-slate-500 dark:text-slate-400"
         >
-          Жанры мероприятия
+          Формат мероприятия
         </p>
         <div
           v-if="project.technologies?.length"

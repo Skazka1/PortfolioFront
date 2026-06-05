@@ -47,7 +47,7 @@ defineProps<{
           class="mt-2"
         >
           <p class="text-[11px] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            Жанры мероприятия
+            Формат мероприятия
           </p>
           <div class="mt-1 flex flex-wrap gap-1">
             <span
